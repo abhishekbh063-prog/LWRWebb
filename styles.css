@@ -1056,6 +1056,9 @@ button[type="submit"]:active::before {
     overflow-x: auto;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    scroll-behavior: smooth;
+    /* Prevent scroll jumping during updates */
+    overflow-anchor: auto;
 }
 
 table {

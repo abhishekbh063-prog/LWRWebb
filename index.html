@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labor Wage Tracking System</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="google-sheets-config.js"></script>
+    <script src="google-sheets-sync.js"></script>
+    <script>
+        // Check authentication before loading page
+        window.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            if (isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="title-section">
+                    <h1 data-lang-key="title">🌾 Labor Wage Tracking System</h1>
+                    <p data-lang-key="subtitle">Agricultural Work Management</p>
+                    <div class="auto-refresh-indicator" id="autoRefreshIndicator" title="Auto-refresh active - loads from Google Sheets every 1 second">
+                        <span class="refresh-icon">🔄</span>
+                        <span class="refresh-text">Auto-refresh: 1s</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="dataManagementToggle" 
+                            class="data-management-toggle"
+                            onclick="laborSystem.toggleDataManagement()"
+                            aria-label="Toggle data management menu"
+                            title="Show/hide data management options">
+                        <span data-lang-key="dataManagement">📊 Data Management</span>
+                        <span class="toggle-icon">▼</span>
+                    </button>
+                    <div class="language-toggle">
+                        <button id="langToggle" 
+                                onclick="laborSystem.toggleLanguage()"
+                                aria-label="Toggle language between English and Kannada"
+                                title="Switch between English and Kannada languages">
+                            <span id="langIcon" aria-hidden="true">🇮🇳</span>
+                            <span id="langText">ಕನ್ನಡ</span>
+                        </button>
+                    </div>
+                    <button id="logoutBtn" 
+                            class="logout-btn"
+                            onclick="logout()"
+                            aria-label="Logout"
+                            title="Logout from the system">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Overlay backdrop for side panel -->
+        <div class="nav-overlay" id="navOverlay" onclick="laborSystem.toggleDataManagement()"></div>
+
+        <!-- Navigation Bar for Data Management (Side Panel) -->
+        <nav class="data-management-nav hidden" id="dataManagementNav">
+            <div class="nav-container">
+                <div class="nav-header">
+                    <h3 data-lang-key="dataManagement">📊 Data Management</h3>
+                    <button class="nav-close-btn" onclick="laborSystem.toggleDataManagement()" aria-label="Close panel" title="Close data management panel">
+                        ×
+                    </button>
+                </div>
+                
+                <div class="nav-section">
+                    <h4 class="nav-title">📤 Export & Import</h4>
+                    <div class="nav-buttons">
+                        <button type="button" 
+                                class="nav-btn export-btn" 
+                                onclick="laborSystem.exportWorkTypes()"
+                                title="Download work types">
+                            <span data-lang-key="exportWorkTypes">📤 Export Work Types</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn template-btn" 
+                                onclick="laborSystem.downloadTemplate()"
+                                title="Download template">
+                            <span data-lang-key="downloadTemplate">📋 Download Template</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn import-btn" 
+                                onclick="document.getElementById('importWorkTypes').click()"
+                                title="Import work types">
+                            <span data-lang-key="importWorkTypes">📥 Import Work Types</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn export-btn" 
+                                onclick="laborSystem.exportAllData()"
+                                title="Export all records">
+                            <span data-lang-key="exportAllData">📋 Export All Records</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <h4 class="nav-title" data-lang-key="csvSync">📁 CSV File Sync</h4>
+                    <div class="nav-buttons">
+                        <button type="button" 
+                                class="nav-btn import-btn" 
+                                onclick="document.getElementById('importCSVRecords').click()"
+                                title="Import CSV records">
+                            <span data-lang-key="importCSVRecords">📥 Import CSV Records</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn sync-btn" 
+                                onclick="laborSystem.exportToCSVFormat()"
+                                title="Export CSV format">
+                            <span data-lang-key="exportCSVFormat">💾 Export CSV Format</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn auto-sync-btn" 
+                                onclick="laborSystem.toggleAutoSync()"
+                                title="Toggle auto-sync">
+                            <span id="autoSyncText" data-lang-key="enableAutoSync">⚡ Enable Auto-Sync</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <h4 class="nav-title" data-lang-key="googleSheetsSync">📊 Google Sheets Sync</h4>
+                    <div class="nav-buttons">
+                        <button type="button" 
+                                class="nav-btn github-btn" 
+                                onclick="laborSystem.checkGoogleSheetsStatus()"
+                                title="Check Google Sheets connection">
+                            <span data-lang-key="checkGoogleSheets">🔍 Check Status</span>
+                        </button>
+                        <button type="button" 
+                                class="nav-btn config-btn" 
+                                onclick="laborSystem.openGoogleSheetsConfig()"
+                                title="Configure Google Sheets settings">
+                            <span data-lang-key="configureGoogleSheets">⚙️ Configure</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hidden file inputs -->
+            <input type="file" id="importWorkTypes" accept=".csv,.xlsx,.xls" onchange="laborSystem.importWorkTypes(event)" class="hidden">
+            <input type="file" id="importCSVRecords" accept=".csv" onchange="laborSystem.importCSVRecords(event)" class="hidden">
+        </nav>
+
+        <div class="controls">
+            <div class="filter-section">
+                <label for="laborerFilter" data-lang-key="filterByLaborer">Filter by Laborer:</label>
+                <select id="laborerFilter" 
+                        aria-label="Filter records by laborer name"
+                        title="Filter the work records to show only entries for a specific laborer">
+                    <option value="" data-lang-key="allLaborers">All Laborers</option>
+                </select>
+            </div>
+            
+            
+            
+            <div class="summary-section">
+                <div class="summary-card" onclick="laborSystem.showOutstandingDetails()">
+                    <h3 data-lang-key="totalOutstanding">Total Outstanding</h3>
+                    <span id="totalOutstanding">₹0</span>
+                </div>
+                <div class="summary-card" onclick="laborSystem.showAdvancesDetails()">
+                    <h3 data-lang-key="totalAdvances">Total Advances</h3>
+                    <span id="totalAdvances">₹0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-work-section">
+            <h3 data-lang-key="manageWorkTypes">🔧 Manage Work Types</h3>
+            <div class="work-management">
+                <div class="work-input-group">
+                    <label for="newCategory" data-lang-key="category">Category:</label>
+                    <select id="newCategory"
+                            aria-label="Select category for new work type"
+                            title="Choose an existing category or select 'Add New Category' to create a new one">
+                        <option value="" data-lang-key="selectCategory">Select Category</option>
+                        <option value="Arecanut" data-lang-key="arecanut">Arecanut</option>
+                        <option value="Rice" data-lang-key="rice">Rice</option>
+                        <option value="Ginger" data-lang-key="ginger">Ginger</option>
+                        <option value="House Work" data-lang-key="houseWork">House Work</option>
+                        <option value="Maintenance" data-lang-key="maintenance">Maintenance</option>
+                        <option value="new" data-lang-key="addNewCategory">+ Add New Category</option>
+                    </select>
+                </div>
+                <div class="work-input-group">
+                    <label for="newCategoryName" data-lang-key="newCategoryName">New Category Name:</label>
+                    <input type="text" 
+                           id="newCategoryName" 
+                           data-lang-key="enterNewCategory" 
+                           placeholder="Enter new category" 
+                           class="hidden"
+                           aria-label="New category name"
+                           title="Enter the name for the new work category">
+                </div>
+                <div class="work-input-group">
+                    <label for="newWorkType" data-lang-key="workType">Work Type:</label>
+                    <input type="text" 
+                           id="newWorkType" 
+                           data-lang-key="workTypePlaceholder" 
+                           placeholder="e.g., Pruning, Fertilizing"
+                           aria-label="New work type"
+                           title="Enter the name for the new work type">
+                </div>
+                <button type="button" 
+                        class="add-work-btn" 
+                        onclick="laborSystem.addCustomWork()"
+                        aria-label="Add new work type"
+                        title="Add the new work type to the selected category">
+                    <span data-lang-key="addWorkType">➕ Add Work Type</span>
+                </button>
+            </div>
+            
+            <!-- Translation Helper -->
+            <div class="translation-helper">
+                <h4>💡 Translation Tip:</h4>
+                <p>
+                    <span data-lang-key="translationTip">New categories and tasks will use the same name in both languages initially. You can edit translations by clicking on the work tags below.</span>
+                </p>
+            </div>
+            
+            <div class="work-tags" id="workTags"></div>
+        </div>
+
+        <div class="form-section">
+            <h2 data-lang-key="addNewEntry">Add New Entry</h2>
+            <form id="entryForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date" data-lang-key="date">Date:</label>
+                        <input type="date" 
+                               id="date" 
+                               required
+                               aria-label="Work date"
+                               title="Select the date when the work was performed">
+                    </div>
+                    <div class="form-group">
+                        <label for="laborerName" data-lang-key="laborerName">Laborer Name:</label>
+                        <input type="text" 
+                               id="laborerName" 
+                               list="laborerList" 
+                               required
+                               aria-label="Laborer name"
+                               title="Enter the name of the laborer who performed the work"
+                               autocomplete="name">
+                        <datalist id="laborerList">
+                            <!-- Laborer names will be populated dynamically -->
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskCategory" data-lang-key="taskCategory">Task Category:</label>
+                        <select id="taskCategory" 
+                                required
+                                aria-label="Select work category"
+                                title="Choose the category of work being performed">
+                            <option value="" data-lang-key="selectCategory">Select Category</option>
+                            <option value="Arecanut" data-lang-key="arecanut">Arecanut</option>
+                            <option value="Rice" data-lang-key="rice">Rice</option>
+                            <option value="Ginger" data-lang-key="ginger">Ginger</option>
+                            <option value="House Work" data-lang-key="houseWork">House Work</option>
+                            <option value="Maintenance" data-lang-key="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDetail" data-lang-key="taskDetail">Task Detail:</label>
+                        <select id="taskDetail" 
+                                required
+                                aria-label="Select specific task details"
+                                title="Choose the specific type of work within the selected category">
+                            <option value="" data-lang-key="selectTask">Select Task</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="unitType" data-lang-key="unitType">Unit Type:</label>
+                        <select id="unitType" 
+                                required
+                                aria-label="Select unit of measurement"
+                                title="Choose how the work quantity is measured (day, hour, kg, etc.)">
+                            <option value="" data-lang-key="selectUnit">Select Unit</option>
+                            <option value="Day" data-lang-key="day">Day</option>
+                            <option value="Hour" data-lang-key="hour">Hour</option>
+                            <option value="Kg" data-lang-key="kg">Kg</option>
+                            <option value="Quintal" data-lang-key="quintal">Quintal</option>
+                            <option value="Tree" data-lang-key="tree">Tree</option>
+                            <option value="Piece" data-lang-key="piece">Piece</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity" data-lang-key="quantity">Quantity:</label>
+                        <input type="number" 
+                               id="quantity" 
+                               step="0.01" 
+                               required
+                               aria-label="Work quantity"
+                               title="Enter the quantity of work performed"
+                               min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rate" data-lang-key="ratePerUnit">Rate per Unit (₹):</label>
+                        <input type="number" 
+                               id="rate" 
+                               step="0.01" 
+                               required
+                               aria-label="Rate per unit in rupees"
+                               title="Enter the payment rate per unit of work"
+                               min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="amountPaid" data-lang-key="amountPaidToday">Amount Paid Today (₹):</label>
+                        <input type="number" 
+                               id="amountPaid" 
+                               step="0.01" 
+                               value="0"
+                               aria-label="Amount paid today in rupees"
+                               title="Enter the amount paid to the laborer today"
+                               min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks" data-lang-key="remarks">Remarks:</label>
+                        <div class="remarks-container">
+                            <label for="remarksDropdown" class="sr-only" data-lang-key="selectRemarks">Select Remarks</label>
+                            <select id="remarksDropdown" 
+                                    onchange="laborSystem.handleRemarksChange()"
+                                    aria-label="Select predefined remarks or choose custom"
+                                    title="Choose from predefined remarks or select custom to enter your own">
+                                <option value="" data-lang-key="selectRemarks">Select Remarks</option>
+                                <option value="Full payment" data-lang-key="fullPayment">Full payment</option>
+                                <option value="Partial payment" data-lang-key="partialPayment">Partial payment</option>
+                                <option value="To be paid" data-lang-key="toBePaid">To be paid</option>
+                                <option value="Repayment after 2 days" data-lang-key="repayment2Days">Repayment after 2 days</option>
+                                <option value="Repayment after 4 days" data-lang-key="repayment4Days">Repayment after 4 days</option>
+                                <option value="Repayment after 1 week" data-lang-key="repayment1Week">Repayment after 1 week</option>
+                                <option value="Repayment after 2 weeks" data-lang-key="repayment2Weeks">Repayment after 2 weeks</option>
+                                <option value="Repayment next month" data-lang-key="repaymentNextMonth">Repayment next month</option>
+                                <option value="Advance given" data-lang-key="advanceGiven">Advance given</option>
+                                <option value="Emergency payment" data-lang-key="emergencyPayment">Emergency payment</option>
+                                <option value="Bonus payment" data-lang-key="bonusPayment">Bonus payment</option>
+                                <option value="Festival advance" data-lang-key="festivalAdvance">Festival advance</option>
+                                <option value="Medical advance" data-lang-key="medicalAdvance">Medical advance</option>
+                                <option value="Work completed" data-lang-key="workCompleted">Work completed</option>
+                                <option value="Half day work" data-lang-key="halfDayWork">Half day work</option>
+                                <option value="Overtime payment" data-lang-key="overtimePayment">Overtime payment</option>
+                                <option value="custom" data-lang-key="customRemarks">Custom remarks...</option>
+                            </select>
+                            <input type="text" 
+                                   id="remarks" 
+                                   data-lang-key="optionalNotes" 
+                                   placeholder="Optional notes" 
+                                   class="hidden"
+                                   aria-label="Custom remarks input"
+                                   title="Enter custom remarks">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        data-lang-key="addEntry"
+                        aria-label="Add work entry"
+                        title="Save the work entry to the records">Add Entry</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h2 data-lang-key="workRecords">Work Records</h2>
+            <div class="table-container">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th data-lang-key="date">Date</th>
+                            <th data-lang-key="laborer">Laborer</th>
+                            <th data-lang-key="taskCategory">Task Category</th>
+                            <th data-lang-key="taskDetail">Task Detail</th>
+                            <th data-lang-key="unit">Unit</th>
+                            <th data-lang-key="qty">Qty</th>
+                            <th data-lang-key="rate">Rate</th>
+                            <th data-lang-key="earned">Earned</th>
+                            <th data-lang-key="paid">Paid</th>
+                            <th data-lang-key="balance">Balance</th>
+                            <th data-lang-key="status">Status</th>
+                            <th data-lang-key="remarks">Remarks</th>
+                            <th data-lang-key="action">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="laborer-summary">
+            <h2 data-lang-key="laborerSummary">Laborer Summary</h2>
+            <div id="summaryCards"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Outstanding Details -->
+    <div id="outstandingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang-key="outstandingPayments">💰 Outstanding Payments</h2>
+                <span class="close" onclick="laborSystem.closeModal('outstandingModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="outstandingList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Advances Details -->
+    <div id="advancesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang-key="advancePayments">🏦 Advance Payments</h2>
+                <span class="close" onclick="laborSystem.closeModal('advancesModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="advancesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('username');
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

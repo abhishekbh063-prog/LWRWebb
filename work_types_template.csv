@@ -1,0 +1,23 @@
+Category,Task,Category_English,Category_Kannada,Task_English,Task_Kannada
+"Arecanut","Tree Cutting","Arecanut","ಅಡಿಕೆ","Tree Cutting","ಮರ ಕತ್ತರಿಸುವುದು"
+"Arecanut","Husking","Arecanut","ಅಡಿಕೆ","Husking","ಸಿಪ್ಪೆ ಸುಲಿಯುವುದು"
+"Arecanut","Spraying","Arecanut","ಅಡಿಕೆ","Spraying","ಸಿಂಪಣೆ ಮಾಡುವುದು"
+"Arecanut","Harvesting","Arecanut","ಅಡಿಕೆ","Harvesting","ಕೊಯ್ಲು"
+"Rice","Planting","Rice","ಅಕ್ಕಿ","Planting","ನೆಟ್ಟಿಗೆ"
+"Rice","Weeding","Rice","ಅಕ್ಕಿ","Weeding","ಕಳೆ ತೆಗೆಯುವುದು"
+"Rice","Harvesting","Rice","ಅಕ್ಕಿ","Harvesting","ಕೊಯ್ಲು"
+"Rice","Threshing","Rice","ಅಕ್ಕಿ","Threshing","ಬಡಿಯುವುದು"
+"Ginger","Planting","Ginger","ಶುಂಠಿ","Planting","ನೆಟ್ಟಿಗೆ"
+"Ginger","Weeding","Ginger","ಶುಂಠಿ","Weeding","ಕಳೆ ತೆಗೆಯುವುದು"
+"Ginger","Harvesting","Ginger","ಶುಂಠಿ","Harvesting","ಕೊಯ್ಲು"
+"Ginger","Processing","Ginger","ಶುಂಠಿ","Processing","ಸಂಸ್ಕರಣೆ"
+"House Work","Cleaning","House Work","ಮನೆ ಕೆಲಸ","Cleaning","ಸ್ವಚ್ಛಗೊಳಿಸುವುದು"
+"House Work","Cooking","House Work","ಮನೆ ಕೆಲಸ","Cooking","ಅಡುಗೆ"
+"House Work","Maintenance","House Work","ಮನೆ ಕೆಲಸ","Maintenance","ನಿರ್ವಹಣೆ"
+"House Work","General Work","House Work","ಮನೆ ಕೆಲಸ","General Work","ಸಾಮಾನ್ಯ ಕೆಲಸ"
+"Maintenance","Grass Picking","Maintenance","ನಿರ್ವಹಣೆ","Grass Picking","ಹುಲ್ಲು ಕೀಳುವುದು"
+"Maintenance","Tool Repair","Maintenance","ನಿರ್ವಹಣೆ","Tool Repair","ಉಪಕರಣ ದುರಸ್ತಿ"
+"Maintenance","Fence Repair","Maintenance","ನಿರ್ವಹಣೆ","Fence Repair","ಬೇಲಿ ದುರಸ್ತಿ"
+
+"Maintenance","General Maintenance","Maintenance","ನಿರ್ವಹಣೆ","General Maintenance","ಸಾಮಾನ್ಯ ನಿರ್ವಹಣೆ"
+

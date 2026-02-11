@@ -1,0 +1,35 @@
+This will be created as a CSV file that can be opened in Excel with all formulas intact.
+
+LABOR WAGE TRACKING SYSTEM - MASTER SHEET
+
+Column Headers:
+A: Date
+B: Laborer Name  
+C: Task Category
+D: Task Detail
+E: Unit Type
+F: Quantity
+G: Rate per Unit
+H: Total Earned
+I: Amount Paid
+J: Balance Change
+K: Running Balance
+L: Payment Status
+M: Remarks
+
+Sample Data Structure:
+Date,Laborer Name,Task Category,Task Detail,Unit Type,Quantity,Rate per Unit,Total Earned,Amount Paid,Balance Change,Running Balance,Payment Status,Remarks
+2024-01-15,Ravi Kumar,Arecanut,Tree Cutting,Day,1,500,=F2*G2,300,=H2-I2,=J2,=IF(K2>0,"Due",IF(K2<0,"Advance","Paid")),
+2024-01-16,Ravi Kumar,Arecanut,Husking,Kg,25,15,=F3*G3,0,=H3-I3,=K2+J3,=IF(K3>0,"Due",IF(K3<0,"Advance","Paid")),
+2024-01-17,Ravi Kumar,Rice,Planting,Day,1,400,=F4*G4,800,=H4-I4,=K3+J4,=IF(K4>0,"Due",IF(K4<0,"Advance","Paid")),
+
+Key Formulas:
+- Total Earned (Column H): =F2*G2
+- Balance Change (Column J): =H2-I2  
+- Running Balance (Column K): =K1+J2 (for row 2 onwards)
+- Payment Status (Column L): =IF(K2>0,"Due",IF(K2<0,"Advance","Paid"))
+
+Dropdown Lists Setup:
+Task Categories: Arecanut, Rice, Ginger, House Work, Maintenance
+Task Details: Tree Cutting, Husking, Spraying, Planting, Grass Picking, General Work
+Unit Types: Day, Hour, Kg, Quintal, Tree, Piece

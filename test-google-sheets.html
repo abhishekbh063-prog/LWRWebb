@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Sheets Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Google Sheets Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Configuration Status</h2>
+        <div id="configStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 1: Check Connection</h2>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connectionResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Sync Sample Data</h2>
+        <button onclick="testSyncRecords()">Sync Sample Records</button>
+        <div id="syncResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Load Data</h2>
+        <button onclick="testLoadRecords()">Load Records</button>
+        <div id="loadResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Log</h2>
+        <div id="consoleLog" class="result"></div>
+    </div>
+
+    <script src="google-sheets-config.js"></script>
+    <script src="google-sheets-sync.js"></script>
+    <script>
+        // Override console.log to show in page
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logDiv = document.getElementById('consoleLog');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logDiv.textContent += args.join(' ') + '\n';
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logDiv.textContent += 'ERROR: ' + args.join(' ') + '\n';
+        };
+        
+        // Check configuration
+        function checkConfig() {
+            const statusDiv = document.getElementById('configStatus');
+            if (googleSheetsSync && googleSheetsSync.isConfigured()) {
+                statusDiv.innerHTML = `
+                    <div class="result success">
+                        ✅ Configuration OK<br>
+                        Web App URL: ${GOOGLE_SHEETS_CONFIG.webAppUrl}
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Not configured<br>
+                        Please update google-sheets-config.js with your Web App URL
+                    </div>
+                `;
+            }
+        }
+        
+        // Test connection
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.textContent = 'Testing connection...';
+            resultDiv.className = 'result';
+            
+            try {
+                const isConnected = await googleSheetsSync.checkConnection();
+                if (isConnected) {
+                    resultDiv.textContent = '✅ Connection successful!';
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.textContent = '❌ Connection failed';
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Test sync records
+        async function testSyncRecords() {
+            const resultDiv = document.getElementById('syncResult');
+            resultDiv.textContent = 'Syncing sample data...';
+            resultDiv.className = 'result';
+            
+            try {
+                const sampleRecords = [
+                    {
+                        id: Date.now(),
+                        date: '2024-01-15',
+                        laborerName: 'Test Worker',
+                        taskCategory: 'Arecanut',
+                        taskDetail: 'Tree Cutting',
+                        unitType: 'Day',
+                        quantity: 1,
+                        rate: 500,
+                        totalEarned: 500,
+                        amountPaid: 300,
+                        balanceChange: 200,
+                        remarks: 'Test entry'
+                    }
+                ];
+                
+                const result = await googleSheetsSync.syncRecords(sampleRecords);
+                resultDiv.textContent = '✅ Sync successful!\n' + JSON.stringify(result, null, 2);
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message + '\n\nStack: ' + error.stack;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Test load records
+        async function testLoadRecords() {
+            const resultDiv = document.getElementById('loadResult');
+            resultDiv.textContent = 'Loading records...';
+            resultDiv.className = 'result';
+            
+            try {
+                const records = await googleSheetsSync.loadRecords();
+                resultDiv.textContent = '✅ Load successful!\n' + 
+                    'Found ' + records.length + ' records\n\n' +
+                    JSON.stringify(records, null, 2);
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message + '\n\nStack: ' + error.stack;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Check config on load
+        checkConfig();
+    </script>
+</body>
+</html>

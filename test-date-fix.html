@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Format Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Date Format Consistency Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Date Input</h2>
+        <label>Select a date: <input type="date" id="testDate"></label>
+        <button onclick="testDateFormat()">Test Format</button>
+        <div id="testResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Date Parsing Tests</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="allTestsResult"></div>
+    </div>
+
+    <script>
+        // Copy the date formatting functions from script.js
+        function formatDateToISO(date) {
+            if (!date) return '';
+            
+            if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                return date;
+            }
+            
+            const dateObj = date instanceof Date ? date : new Date(date);
+            
+            if (isNaN(dateObj.getTime())) {
+                return '';
+            }
+            
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '';
+            
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                const [year, month, day] = parts;
+                return `${day}/${month}/${year}`;
+            }
+            
+            const date = new Date(dateString);
+            if (!isNaN(date.getTime())) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            return dateString;
+        }
+
+        function parseDateFromCSV(dateString) {
+            if (!dateString) return '';
+            
+            dateString = dateString.trim();
+            
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+                return dateString;
+            }
+            
+            const slashParts = dateString.split('/');
+            if (slashParts.length === 3) {
+                let day, month, year;
+                
+                if (slashParts[0].length === 4) {
+                    [year, month, day] = slashParts;
+                } else {
+                    [day, month, year] = slashParts;
+                }
+                
+                const dayNum = parseInt(day, 10);
+                const monthNum = parseInt(month, 10);
+                const yearNum = parseInt(year, 10);
+                
+                if (dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12) {
+                    const fullYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+                    return `${fullYear}-${String(monthNum).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                }
+            }
+            
+            const date = new Date(dateString);
+            if (!isNaN(date.getTime())) {
+                return formatDateToISO(date);
+            }
+            
+            return dateString;
+        }
+
+        function testDateFormat() {
+            const dateInput = document.getElementById('testDate');
+            const result = document.getElementById('testResult');
+            
+            const inputValue = dateInput.value;
+            const isoFormat = formatDateToISO(inputValue);
+            const displayFormat = formatDateForDisplay(isoFormat);
+            
+            result.innerHTML = `
+                <strong>Input value:</strong> ${inputValue}<br>
+                <strong>Stored format (ISO):</strong> ${isoFormat}<br>
+                <strong>Display format (DD/MM/YYYY):</strong> ${displayFormat}<br>
+                <span class="success">✓ Date will be stored consistently across all devices!</span>
+            `;
+        }
+
+        function runAllTests() {
+            const testCases = [
+                { input: '2024-02-15', expected: '2024-02-15', desc: 'ISO format' },
+                { input: '15/02/2024', expected: '2024-02-15', desc: 'DD/MM/YYYY format' },
+                { input: '02/15/2024', expected: '2024-02-15', desc: 'MM/DD/YYYY format (ambiguous)' },
+                { input: '2024/02/15', expected: '2024-02-15', desc: 'YYYY/MM/DD format' }
+            ];
+            
+            let html = '<h3>Test Results:</h3>';
+            let allPassed = true;
+            
+            testCases.forEach(test => {
+                const result = parseDateFromCSV(test.input);
+                const passed = result === test.expected;
+                allPassed = allPassed && passed;
+                
+                html += `
+                    <div class="result">
+                        <strong>${test.desc}</strong><br>
+                        Input: ${test.input}<br>
+                        Expected: ${test.expected}<br>
+                        Got: ${result}<br>
+                        <span class="${passed ? 'success' : 'error'}">
+                            ${passed ? '✓ PASS' : '✗ FAIL'}
+                        </span>
+                    </div>
+                `;
+            });
+            
+            html += `<h3 class="${allPassed ? 'success' : 'error'}">
+                ${allPassed ? '✓ All tests passed!' : '✗ Some tests failed'}
+            </h3>`;
+            
+            document.getElementById('allTestsResult').innerHTML = html;
+        }
+
+        // Set today's date as default
+        document.getElementById('testDate').value = formatDateToISO(new Date());
+    </script>
+</body>
+</html>

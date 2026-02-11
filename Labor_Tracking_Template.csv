@@ -1,0 +1,21 @@
+Date,Laborer Name,Task Category,Task Detail,Unit Type,Quantity,Rate per Unit,Total Earned,Amount Paid,Balance Change,Running Balance,Payment Status,Remarks
+1/15/2024,Ravi Kumar,Arecanut,Tree Cutting,Day,1,500,500,300,200,200,Due,Partial payment
+1/16/2024,Ravi Kumar,Arecanut,Husking,Kg,25,15,375,0,375,575,Due,No payment today
+1/17/2024,Ravi Kumar,Rice,Planting,Day,1,400,400,800,-400,175,Paid,Advance given
+1/18/2024,Sita Devi,Ginger,Weeding,Day,1,350,350,350,0,350,Paid,Full payment
+1/19/2024,Ravi Kumar,House Work,Cleaning,Hour,4,50,200,0,200,375,Due,
+1/20/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/21/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/22/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/23/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/24/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/25/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/26/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/27/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/28/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/29/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/30/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+1/31/2024,Mohan Lal,Arecanut,Spraying,Day,1,600,600,500,100,100,Due,Pesticide work
+
+
+

@@ -368,6 +368,12 @@ class LaborTrackingSystem {
                 return;
             }
             
+            // Skip if already refreshing
+            if (this.isRefreshing) {
+                return;
+            }
+            this.isRefreshing = true;
+            
             // Add visual feedback
             const indicator = document.getElementById('autoRefreshIndicator');
             if (indicator) {
@@ -377,8 +383,11 @@ class LaborTrackingSystem {
             // Load from Google Sheets
             const records = await googleSheetsSync.loadRecords();
             if (records && records.length > 0) {
-                // Only update if data has changed
-                if (JSON.stringify(records) !== JSON.stringify(this.records)) {
+                // Only update if data has actually changed
+                const newDataHash = JSON.stringify(records);
+                const currentDataHash = JSON.stringify(this.records);
+                
+                if (newDataHash !== currentDataHash) {
                     this.records = records;
                     this.saveToStorage();
                     this.renderRecords();
@@ -386,6 +395,9 @@ class LaborTrackingSystem {
                     this.updateLaborerFilter();
                     this.updateLaborerSummary();
                     console.log('✅ Data refreshed from Google Sheets');
+                } else {
+                    // Data unchanged, no need to re-render
+                    console.log('📊 Data unchanged, skipping render');
                 }
             }
             
@@ -395,8 +407,11 @@ class LaborTrackingSystem {
                     indicator.style.background = 'rgba(255, 255, 255, 0.2)';
                 }
             }, 300);
+            
+            this.isRefreshing = false;
         } catch (error) {
             console.error('❌ Error during auto-refresh:', error);
+            this.isRefreshing = false;
         }
     }
     
@@ -1640,6 +1655,12 @@ For detailed instructions, open google-sheets-config.js in a text editor.`
 
     renderRecords() {
         const tbody = document.getElementById('recordsBody');
+        const tableContainer = document.querySelector('.table-container');
+        
+        // Save current scroll position
+        const scrollTop = tableContainer ? tableContainer.scrollTop : 0;
+        const scrollLeft = tableContainer ? tableContainer.scrollLeft : 0;
+        
         tbody.innerHTML = '';
 
         this.records.forEach((record, index) => {
@@ -1676,6 +1697,15 @@ For detailed instructions, open google-sheets-config.js in a text editor.`
             row.cells[row.cells.length - 1].appendChild(deleteBtn);
             tbody.appendChild(row);
         });
+        
+        // Restore scroll position after rendering
+        if (tableContainer) {
+            // Use requestAnimationFrame to ensure DOM is updated
+            requestAnimationFrame(() => {
+                tableContainer.scrollTop = scrollTop;
+                tableContainer.scrollLeft = scrollLeft;
+            });
+        }
     }
 
     filterRecords(laborerName) {
